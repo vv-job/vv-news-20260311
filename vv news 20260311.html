@@ -1,0 +1,1155 @@
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VVニュース</title>
+</head>
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>今日のヴィレヴァンニュース！</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --vv-yellow: #FFE000;
+      --vv-black: #1a1a1a;
+      --vv-red: #E8002D;
+      --vv-white: #FFFFFF;
+      --vv-orange: #FF6B00;
+      --vv-green: #00A550;
+      --vv-blue: #0066CC;
+      --vv-pink: #FF69B4;
+      --card-shadow: 0 4px 16px rgba(0,0,0,0.13);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Hiragino Kaku Gothic ProN', 'Noto Sans JP', sans-serif;
+      background: #f5f0e8;
+      color: var(--vv-black);
+      min-height: 100vh;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      background: var(--vv-black);
+      color: var(--vv-yellow);
+      padding: 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    }
+    .header-inner {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .header-logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .logo-badge {
+      background: var(--vv-yellow);
+      color: var(--vv-black);
+      font-weight: 900;
+      font-size: 0.7rem;
+      padding: 3px 8px;
+      border-radius: 4px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .header-title {
+      font-size: 1.35rem;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+    .header-title span {
+      color: var(--vv-yellow);
+    }
+    .header-date {
+      font-size: 0.8rem;
+      color: #aaa;
+      white-space: nowrap;
+    }
+
+    /* ===== HERO BANNER ===== */
+    .hero {
+      background: linear-gradient(135deg, var(--vv-black) 0%, #2a1a00 60%, #3a2a00 100%);
+      color: var(--vv-white);
+      padding: 48px 20px 40px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -60px; left: -60px;
+      width: 220px; height: 220px;
+      background: var(--vv-yellow);
+      opacity: 0.07;
+      border-radius: 50%;
+    }
+    .hero::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; right: -40px;
+      width: 280px; height: 280px;
+      background: var(--vv-red);
+      opacity: 0.07;
+      border-radius: 50%;
+    }
+    .hero-eyecatch {
+      display: inline-block;
+      background: var(--vv-red);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+      text-transform: uppercase;
+    }
+    .hero h1 {
+      font-size: clamp(1.5rem, 5vw, 2.4rem);
+      font-weight: 900;
+      line-height: 1.3;
+      margin-bottom: 10px;
+    }
+    .hero h1 .highlight {
+      color: var(--vv-yellow);
+    }
+    .hero-sub {
+      font-size: 0.9rem;
+      color: #ccc;
+      max-width: 560px;
+      margin: 0 auto;
+      line-height: 1.7;
+    }
+
+    /* ===== TICKER ===== */
+    .ticker-wrap {
+      background: var(--vv-yellow);
+      color: var(--vv-black);
+      overflow: hidden;
+      padding: 8px 0;
+      font-weight: 700;
+      font-size: 0.85rem;
+    }
+    .ticker-inner {
+      display: flex;
+      white-space: nowrap;
+      animation: ticker 30s linear infinite;
+    }
+    .ticker-inner span {
+      padding: 0 40px;
+    }
+    @keyframes ticker {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* ===== MAIN LAYOUT ===== */
+    .main-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 36px 20px 60px;
+    }
+
+    /* ===== SECTION HEADERS ===== */
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 22px;
+      margin-top: 44px;
+    }
+    .section-header:first-child { margin-top: 0; }
+    .section-tag {
+      background: var(--vv-black);
+      color: var(--vv-yellow);
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 4px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+    }
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 900;
+    }
+
+    /* ===== FEATURED CARD (BIG NEWS) ===== */
+    .featured-card {
+      background: var(--vv-white);
+      border-radius: 16px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      border: 3px solid var(--vv-black);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .featured-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 28px rgba(0,0,0,0.18);
+    }
+    .featured-visual {
+      background: linear-gradient(135deg, #1a1a1a 0%, #3a3a3a 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 30px;
+      min-height: 280px;
+    }
+    .featured-icon {
+      font-size: 6rem;
+      filter: drop-shadow(0 4px 12px rgba(0,0,0,0.5));
+    }
+    .featured-content {
+      padding: 32px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .news-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--vv-red);
+      color: #fff;
+      font-size: 0.68rem;
+      font-weight: 800;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 14px;
+      width: fit-content;
+    }
+    .news-badge.collab { background: var(--vv-orange); }
+    .news-badge.game { background: var(--vv-blue); }
+    .news-badge.vtuber { background: var(--vv-pink); color: #fff; }
+    .news-badge.subcul { background: var(--vv-green); }
+    .featured-content h2 {
+      font-size: 1.4rem;
+      font-weight: 900;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+    .featured-content p {
+      font-size: 0.9rem;
+      line-height: 1.8;
+      color: #444;
+      margin-bottom: 16px;
+    }
+    .source-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: var(--vv-blue);
+      text-decoration: none;
+      font-weight: 600;
+      padding: 6px 14px;
+      border: 2px solid var(--vv-blue);
+      border-radius: 20px;
+      width: fit-content;
+      transition: all 0.2s;
+    }
+    .source-link:hover {
+      background: var(--vv-blue);
+      color: #fff;
+    }
+
+    /* ===== NEWS GRID ===== */
+    .news-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .news-card {
+      background: var(--vv-white);
+      border-radius: 14px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      border: 2px solid #e0e0e0;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+      cursor: pointer;
+    }
+    .news-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      border-color: var(--vv-yellow);
+    }
+    .card-header {
+      padding: 20px 20px 0;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+    .card-emoji {
+      font-size: 2.2rem;
+      flex-shrink: 0;
+    }
+    .card-meta {
+      flex: 1;
+    }
+    .card-body {
+      padding: 12px 20px 20px;
+    }
+    .card-body h3 {
+      font-size: 1rem;
+      font-weight: 800;
+      line-height: 1.45;
+      margin-bottom: 8px;
+    }
+    .card-body p {
+      font-size: 0.84rem;
+      line-height: 1.75;
+      color: #555;
+      margin-bottom: 12px;
+    }
+
+    /* ===== PRODUCT PICKS ===== */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+    .product-card {
+      background: var(--vv-white);
+      border-radius: 14px;
+      box-shadow: var(--card-shadow);
+      overflow: hidden;
+      border: 2px solid #e0e0e0;
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      border-color: var(--vv-orange);
+    }
+    .product-visual {
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+    }
+    .product-visual.frog { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); }
+    .product-visual.game { background: linear-gradient(135deg, #e3f2fd, #bbdefb); }
+    .product-visual.vtuber { background: linear-gradient(135deg, #fce4ec, #f8bbd0); }
+    .product-content {
+      padding: 16px 18px 18px;
+    }
+    .product-content h3 {
+      font-size: 0.95rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+    .product-content p {
+      font-size: 0.82rem;
+      line-height: 1.75;
+      color: #555;
+      margin-bottom: 12px;
+    }
+    .product-detail {
+      display: none;
+      background: #f9f9f9;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 8px;
+      font-size: 0.8rem;
+      line-height: 1.7;
+      color: #444;
+      border-left: 3px solid var(--vv-orange);
+    }
+    .product-detail.open { display: block; }
+    .toggle-btn {
+      background: none;
+      border: 2px solid var(--vv-orange);
+      color: var(--vv-orange);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 5px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .toggle-btn:hover, .toggle-btn.active {
+      background: var(--vv-orange);
+      color: #fff;
+    }
+
+    /* ===== CHART SECTION ===== */
+    .chart-section {
+      background: var(--vv-white);
+      border-radius: 16px;
+      box-shadow: var(--card-shadow);
+      padding: 28px;
+      border: 2px solid #e0e0e0;
+    }
+    .chart-section h3 {
+      font-size: 1.05rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+    }
+    .chart-section p {
+      font-size: 0.82rem;
+      color: #777;
+      margin-bottom: 20px;
+    }
+    .chart-container {
+      position: relative;
+      height: 280px;
+    }
+
+    /* ===== SUBCUL FLASH ===== */
+    .flash-card {
+      background: var(--vv-black);
+      color: var(--vv-white);
+      border-radius: 14px;
+      padding: 22px 24px;
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+      box-shadow: var(--card-shadow);
+      transition: transform 0.2s;
+    }
+    .flash-card:hover { transform: translateY(-3px); }
+    .flash-icon { font-size: 2.2rem; flex-shrink: 0; }
+    .flash-content h3 {
+      font-size: 0.95rem;
+      font-weight: 800;
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+    .flash-content p {
+      font-size: 0.82rem;
+      line-height: 1.7;
+      color: #ccc;
+      margin-bottom: 10px;
+    }
+    .flash-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    /* ===== FILTER TABS ===== */
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .filter-tab {
+      background: #e8e8e8;
+      border: none;
+      padding: 7px 16px;
+      border-radius: 20px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      color: #444;
+    }
+    .filter-tab:hover { background: #d0d0d0; }
+    .filter-tab.active {
+      background: var(--vv-black);
+      color: var(--vv-yellow);
+    }
+
+    /* ===== TIMELINE ===== */
+    .timeline {
+      position: relative;
+      padding-left: 28px;
+    }
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 8px; top: 0; bottom: 0;
+      width: 2px;
+      background: linear-gradient(to bottom, var(--vv-yellow), var(--vv-orange));
+    }
+    .timeline-item {
+      position: relative;
+      margin-bottom: 20px;
+      background: var(--vv-white);
+      border-radius: 12px;
+      padding: 16px 18px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      border: 1px solid #eee;
+    }
+    .timeline-item::before {
+      content: '';
+      position: absolute;
+      left: -24px; top: 18px;
+      width: 12px; height: 12px;
+      background: var(--vv-yellow);
+      border-radius: 50%;
+      border: 2px solid var(--vv-black);
+    }
+    .timeline-date {
+      font-size: 0.72rem;
+      color: #999;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .timeline-item h4 {
+      font-size: 0.9rem;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+    .timeline-item p {
+      font-size: 0.82rem;
+      color: #666;
+      line-height: 1.6;
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: var(--vv-black);
+      color: #aaa;
+      text-align: center;
+      padding: 28px 20px;
+      font-size: 0.8rem;
+      line-height: 1.8;
+    }
+    footer a { color: var(--vv-yellow); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 700px) {
+      .featured-card { grid-template-columns: 1fr; }
+      .featured-visual { min-height: 180px; }
+      .header-title { font-size: 1.05rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <div class="header-logo">
+      <span class="logo-badge">VV Watch</span>
+      <div class="header-title">今日の<span>ヴィレヴァン</span>ニュース！</div>
+    </div>
+    <div class="header-date">2026年3月11日（水）</div>
+  </div>
+</header>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-inner">
+    <span>🎨 『るび様』×ヴィレヴァン コラボグッズ受注開始！</span>
+    <span>🐸 『ナミちゃんとミーコさん』×ヴィレヴァン コラボ決定！</span>
+    <span>🀄 麻雀プロ・佐々木寿人×ヴィレヴァン 受注販売スタート！</span>
+    <span>🐻 ハウスダスト×グルーミー 限定コラボグッズ発売！</span>
+    <span>🎬 『バック・トゥ・ザ・フューチャー』第2弾グッズ受注中！</span>
+    <span>⚔️ 『刀剣乱舞 ONLINE 御伴散歩』アクリルフィギュアスタンプ登場！</span>
+    <span>📺 ガリベンチャーV、5月で放送終了を発表…</span>
+    <span>🎀 サンリオキャラクター大賞 2026年も開催決定！</span>
+    <span>🎨 『るび様』×ヴィレヴァン コラボグッズ受注開始！</span>
+    <span>🐸 『ナミちゃんとミーコさん』×ヴィレヴァン コラボ決定！</span>
+    <span>🀄 麻雀プロ・佐々木寿人×ヴィレヴァン 受注販売スタート！</span>
+    <span>🐻 ハウスダスト×グルーミー 限定コラボグッズ発売！</span>
+    <span>🎬 『バック・トゥ・ザ・フューチャー』第2弾グッズ受注中！</span>
+    <span>⚔️ 『刀剣乱舞 ONLINE 御伴散歩』アクリルフィギュアスタンプ登場！</span>
+    <span>📺 ガリベンチャーV、5月で放送終了を発表…</span>
+    <span>🎀 サンリオキャラクター大賞 2026年も開催決定！</span>
+    </div>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-eyecatch">🔥 Breaking News</div>
+  <h1>るび様降臨！<br><span class="highlight">春のコラボ特大号</span></h1>
+  <p class="hero-sub">過去168時間以内に発表されたヴィレッジヴァンガードの最新ニュースを凝縮。人気イラストレーターから麻雀プロまで、予測不能なラインナップをお届け！</p>
+</div>
+
+<!-- MAIN -->
+<div class="main-container">
+
+  <!-- ===== 今日の注目トピック ===== -->
+  <div class="section-header">
+    <span class="section-tag">Top Story</span>
+    <h2 class="section-title">今日の注目トピック</h2>
+  </div>
+
+  <div class="featured-card">
+    <div class="featured-visual">
+      <div class="featured-icon">🎨</div>
+    </div>
+    <div class="featured-content">
+      <span class="news-badge">🚨 注目</span>
+      <h2>『るび様』×ヴィレッジヴァンガードコラボ企画が発売決定！！</h2>
+      <p>人気イラストレーター「るび様」との待望のコラボが実現！本企画のために描き下ろされた美麗イラストを使用した限定グッズが、ヴィレッジヴァンガードオンラインストアにて受注販売されます。飾っても、持ち歩いても、日常の中で“るび様”を感じられるファン垂涎のアイテムが勢揃い。るび様を崇める会の皆さんは必見です！</p>
+      <a class="source-link" href="https://vvstore.jp/feature/detail/22230/" target="_blank" rel="noopener">
+        📰 詳細をチェックする
+      </a>
+    </div>
+  </div>
+
+    </div>
+    <div class="featured-content">
+      <span class="news-badge">🚨 速報</span>
+      <h2>ヴィレヴァン本店、40年の歴史に幕…2026年5月31日閉店へ</h2>
+      <p>
+        サブカルの聖地として多くのファンに愛されてきた<strong>ヴィレッジヴァンガード本店</strong>（名古屋市天白区）が、2026年5月31日をもって閉店することが発表されました。理由は建物と設備の老朽化。1986年の開店から約40年、独自の品揃えと手書きPOPで多くの人の心を掴んできた本店。SNSでは「青春の場所がなくなる」と惜しむ声が溢れています。
+      </p>
+      <p>
+        閉店発表に合わせて、40周年記念グッズの再販も決定（3月15日まで受注受付中）。最後の思い出を作りに、ぜひ足を運んでみては？
+      </p>
+      <a class="source-link" href="https://kai-you.net/article/94760" target="_blank" rel="noopener">
+        📰 KAI-YOU.net で詳細を読む
+      </a>
+    </div>
+  </div>
+
+  <!-- ===== 最新コラボ情報 ===== -->
+  <div class="section-header">
+    <span class="section-tag">Collab News</span>
+    <h2 class="section-title">最新コラボ情報</h2>
+  </div>
+
+  <div class="filter-tabs" id="filterTabs">
+    <button class="filter-tab active" data-filter="all">すべて</button>
+    <button class="filter-tab" data-filter="collab">コラボグッズ</button>
+    <button class="filter-tab" data-filter="game">ゲーム</button>
+    <button class="filter-tab" data-filter="anime">アニメ</button>
+    <button class="filter-tab" data-filter="vtuber">VTuber</button>
+  </div>
+
+  <div class="news-grid" id="newsGrid">
+
+    <div class="news-card" data-category="collab">
+      <div class="card-header">
+        <div class="card-emoji">🐸</div>
+        <div class="card-meta">
+          <span class="news-badge collab">Collab</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>『ナミちゃんとミーコさん』×ヴィレヴァン コラボ企画！</h3>
+        <p>SNSで話題の『ナミちゃんとミーコさん』とのコラボグッズが登場。ナミちゃんとミーコさんの可愛らしい世界観がヴィレヴァン限定アイテムに！</p>
+        <a class="source-link" href="https://www.village-v.co.jp/online/030527/" target="_blank" rel="noopener">詳細を見る →</a>
+      </div>
+    </div>
+    
+    <div class="news-card" data-category="collab">
+      <div class="card-header">
+        <div class="card-emoji">🀄</div>
+        <div class="card-meta">
+          <span class="news-badge collab">Collab</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>【佐々木寿人】×ヴィレヴァン 受注販売決定！</h3>
+        <p>麻雀プロ・佐々木寿人氏との異色コラボが実現。3月11日よりオンラインストアにて受注販売がスタート。麻雀ファンならずとも注目のアイテムです。</p>
+        <a class="source-link" href="https://vvstore.jp/feature/detail/22231/" target="_blank" rel="noopener">詳細を見る →</a>
+      </div>
+    </div>
+    
+    <div class="news-card" data-category="collab">
+      <div class="card-header">
+        <div class="card-emoji">🐻</div>
+        <div class="card-meta">
+          <span class="news-badge collab">Collab</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>【ハウスダスト × グルーミー】限定コラボグッズ！</h3>
+        <p>ハウスダストが大好きな「グルーミー」とのスペシャルコラボ。エッジの効いたデザインがヴィレヴァンらしいラインナップになっています。</p>
+        <a class="source-link" href="https://vvstore.jp/feature/detail/22232/" target="_blank" rel="noopener">詳細を見る →</a>
+      </div>
+    </div>
+    
+    <div class="news-card" data-category="anime">
+      <div class="card-header">
+        <div class="card-emoji">🎬</div>
+        <div class="card-meta">
+          <span class="news-badge anime">Anime</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>『バック・トゥ・ザ・フューチャー』グッズ第2弾！</h3>
+        <p>40周年を記念したグッズ第2弾が登場。3月23日までオンラインで受注受付中。ファン必見のコレクターズアイテムが満載です。</p>
+        <a class="source-link" href="https://vvstore.jp/feature/detail/22233/" target="_blank" rel="noopener">詳細を見る →</a>
+      </div>
+    </div>
+    
+    <div class="news-card" data-category="game">
+      <div class="card-header">
+        <div class="card-emoji">⚔️</div>
+        <div class="card-meta">
+          <span class="news-badge game">Game</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>【刀剣乱舞 ONLINE 御伴散歩】アクリルフィギュアスタンプ！</h3>
+        <p>「御伴散歩」のイラストを使用したアクリルフィギュアスタンプが新登場。飾ってもスタンプとしても楽しめる2WAY仕様です。</p>
+        <a class="source-link" href="https://vvstore.jp/feature/detail/22234/" target="_blank" rel="noopener">詳細を見る →</a>
+      </div>
+    </div>
+    
+    </div>
+        <div class="card-meta">
+          <span class="news-badge collab">コラボグッズ</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>「ただのかえるたち」×ヴィレヴァン コラボグッズ受注スタート！</h3>
+        <p>SNSで大人気のゆるかわキャラ「ただのかえるたち」とのコラボが登場！エプロン姿でお仕事する3匹の描き下ろしイラストが可愛すぎる。トートバッグ（¥4,800）やマグカップ（¥2,500）など日常使いしやすいアイテムが揃っています。</p>
+        <p><strong>受注期間：</strong>3月9日〜3月22日（日）23:59まで</p>
+        <a class="source-link" href="https://prtimes.jp/main/html/rd/p/000006209.000018131.html" target="_blank" rel="noopener">詳細を見る →</a>
+      </div>
+    </div>
+
+    <div class="news-card" data-category="game">
+      <div class="card-header">
+        <div class="card-emoji">🎮</div>
+        <div class="card-meta">
+          <span class="news-badge game">ゲームコラボ</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>崩壊：スターレイル×ヴィレヴァン「新星開幕記念コラボ」！うまい棒も！</h3>
+        <p>大人気スマホゲーム「崩壊：スターレイル」とのコラボが実現！開拓者・爻光・火花・不死途の限定グッズに加え、なんと<strong>スターレイル特別仕様のうまい棒</strong>まで登場。ゲームファンもヴィレヴァンファンも必見です。</p>
+        <p><strong>受注期間①：</strong>3月6日〜3月22日（日）23:59</p>
+        <a class="source-link" href="https://www.village-v.co.jp/online/030616/" target="_blank" rel="noopener">詳細を見る →</a>
+      </div>
+    </div>
+
+    <div class="news-card" data-category="anime">
+      <div class="card-header">
+        <div class="card-emoji">🎸</div>
+        <div class="card-meta">
+          <span class="news-badge">アニメコラボ</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>ガールズバンドクライ 第4弾「ホワイトフォーカス」シリーズ受注中！</h3>
+        <p>東映アニメーション新規描き下ろし！白を基調とした衣装でフォーカスポーズを決めるトゲナシトゲアリのメンバーたち。缶バッジ・アクリルスタンド・クリアカードなど豊富なラインナップ。3月19日からはPOPUP SHOPも開催予定！</p>
+        <p><strong>受注期間：</strong>3月6日〜3月22日（日）23:59</p>
+        <a class="source-link" href="https://vvstore.jp/feature/detail/22145" target="_blank" rel="noopener">詳細を見る →</a>
+      </div>
+    </div>
+
+    <div class="news-card" data-category="anime">
+      <div class="card-header">
+        <div class="card-emoji">🔍</div>
+        <div class="card-meta">
+          <span class="news-badge">アニメコラボ</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>小市民シリーズ×ヴィレヴァン 店頭販売スタート！</h3>
+        <p>米澤穂信原作・人気アニメ「小市民シリーズ」の小鳩くんと小佐内さんが、私服でヴィレヴァンにやってきた！アクリルキーホルダー（¥1,200）、ダイカットステッカー（¥600）、アクリルフィギュア（¥2,000）の3種類が全国8店舗で販売中。</p>
+        <p><strong>発売日：</strong>2026年3月6日（金）より順次</p>
+        <a class="source-link" href="https://www.village-v.co.jp/item/030514/" target="_blank" rel="noopener">詳細を見る →</a>
+      </div>
+    </div>
+
+    <div class="news-card" data-category="vtuber">
+      <div class="card-header">
+        <div class="card-emoji">🏬</div>
+        <div class="card-meta">
+          <span class="news-badge vtuber">VTuberコラボ</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>イオンモール特化型VTuber「静馬レイ」初グッズがヴィレヴァンから！</h3>
+        <p>「メガネ屋だけでどのイオンモールか特定できる」という超ニッチな特技で話題の個人勢VTuber・静馬レイさんの初グッズがヴィレヴァンで登場！POP風アクリルバッジには「ファンサが『特定』」などファン必見のフレーズが。</p>
+        <p><strong>受注期間：</strong>3月15日（日）23:59まで</p>
+        <a class="source-link" href="https://kai-you.net/article/94810" target="_blank" rel="noopener">詳細を見る →</a>
+      </div>
+    </div>
+
+    <div class="news-card" data-category="collab">
+      <div class="card-header">
+        <div class="card-emoji">⚔️</div>
+        <div class="card-meta">
+          <span class="news-badge collab">コラボグッズ</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <h3>EX風林火山×ヴィレヴァン 限定コラボグッズ第2弾！</h3>
+        <p>eスポーツチーム「EX風林火山」とのコラボ第2弾が登場。おなじみの抱き枕から、イラストを使用した各種グッズまで盛りだくさん。ゲーミングとサブカルが交差するヴィレヴァンらしいコラボです。</p>
+        <p><strong>発売日：</strong>2026年3月6日（金）より</p>
+        <a class="source-link" href="https://prtimes.jp/main/html/rd/p/000006218.000018131.html" target="_blank" rel="noopener">詳細を見る →</a>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== おススメ商品ピックアップ ===== -->
+  <div class="section-header">
+    <span class="section-tag">Pick Up</span>
+    <h2 class="section-title">おススメ商品ピックアップ</h2>
+  </div>
+
+  <div class="product-grid">
+
+    <div class="product-card">
+      <div class="product-visual">🎨</div>
+      <div class="product-content">
+        <span class="news-badge collab" style="margin-bottom:10px;">美麗イラスト</span>
+        <h3>るび様 描き下ろしアクリルスタンド ¥2,200</h3>
+        <p>本コラボ限定の描き下ろしイラストを使用したアクリルスタンド。デスクに飾れば、いつでもるび様の世界観に浸れます。</p>
+        <button class="toggle-btn" onclick="toggleDetail(this)">商品詳細を見る ▼</button>
+        <div class="product-detail">
+          <strong>素材：</strong>アクリル<br>
+          <strong>サイズ：</strong>約H150mm<br>
+          <strong>受注期間：</strong>3月11日〜3月29日<br>
+          <strong>お届け予定：</strong>2026年5月中旬予定<br>
+          <a href="https://vvstore.jp/feature/detail/22230/" target="_blank" rel="noopener" style="color:var(--vv-blue);">→ オンラインストアで購入</a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="product-card">
+      <div class="product-visual">🀄</div>
+      <div class="product-content">
+        <span class="news-badge collab" style="margin-bottom:10px;">麻雀ファン必見</span>
+        <h3>佐々木寿人 コラボTシャツ ¥3,800</h3>
+        <p>佐々木寿人プロの力強いイメージをデザインに落とし込んだTシャツ。対局時の勝負服としても、普段使いとしてもインパクト抜群！</p>
+        <button class="toggle-btn" onclick="toggleDetail(this)">商品詳細を見る ▼</button>
+        <div class="product-detail">
+          <strong>素材：</strong>綿100%<br>
+          <strong>サイズ：</strong>S/M/L/XL<br>
+          <strong>受注期間：</strong>3月11日〜3月22日<br>
+          <strong>お届け予定：</strong>2026年5月上旬予定<br>
+          <a href="https://vvstore.jp/feature/detail/22231/" target="_blank" rel="noopener" style="color:var(--vv-blue);">→ オンラインストアで購入</a>
+        </div>
+      </div>
+    </div>
+    
+    <div class="product-card">
+      <div class="product-visual">🐻</div>
+      <div class="product-content">
+        <span class="news-badge collab" style="margin-bottom:10px;">限定コラボ</span>
+        <h3>ハウスダスト×グルーミー ぬいぐるみ ¥4,500</h3>
+        <p>ハウスダスト仕様の特別なグルーミーぬいぐるみ。ヴィレヴァンでしか手に入らない、毒っ気のある可愛さが魅力です。</p>
+        <button class="toggle-btn" onclick="toggleDetail(this)">商品詳細を見る ▼</button>
+        <div class="product-detail">
+          <strong>素材：</strong>ポリエステル<br>
+          <strong>サイズ：</strong>約20cm<br>
+          <strong>受注期間：</strong>3月11日〜3月29日<br>
+          <strong>お届け予定：</strong>2026年5月下旬予定<br>
+          <a href="https://vvstore.jp/feature/detail/22232/" target="_blank" rel="noopener" style="color:var(--vv-blue);">→ オンラインストアで購入</a>
+        </div>
+      </div>
+    </div>
+    
+  </div>
+      <div class="product-content">
+        <span class="news-badge collab" style="margin-bottom:10px;">今すぐ買える</span>
+        <h3>ただのかえるたち トートバッグ ¥4,800</h3>
+        <p>エプロン姿でお仕事する3匹の描き下ろしイラスト入り。コットン素材でH32cm×W46cmとたっぷり入るサイズ感。日々の買い物や通勤・通学バッグとして大活躍！ヴィレヴァンらしいゆるかわデザインで、持つだけで気分が上がります。</p>
+        <button class="toggle-btn" onclick="toggleDetail(this)">商品詳細を見る ▼</button>
+        <div class="product-detail">
+          <strong>素材：</strong>綿<br>
+          <strong>サイズ：</strong>H32cm × W46cm × マチ14cm<br>
+          <strong>受注期間：</strong>3月9日〜3月22日（日）23:59<br>
+          <strong>お届け予定：</strong>2026年4月下旬〜5月中旬<br>
+          <a href="https://vvstore.jp/feature/detail/22224" target="_blank" rel="noopener" style="color:var(--vv-blue);">→ オンラインストアで購入</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="product-visual game">🎮</div>
+      <div class="product-content">
+        <span class="news-badge game" style="margin-bottom:10px;">ゲーマー必見</span>
+        <h3>崩壊：スターレイル コラボうまい棒（12本入り）</h3>
+        <p>まさかのコラボ！スターレイル特別仕様パッケージのうまい棒が12本セットで登場。ゲーム仲間へのプレゼントにも、自分へのご褒美にも最高。ゲームをプレイしながら食べれば、没入感が倍増すること間違いなし！</p>
+        <button class="toggle-btn" onclick="toggleDetail(this)">商品詳細を見る ▼</button>
+        <div class="product-detail">
+          <strong>内容：</strong>コラボうまい棒 12本入り<br>
+          <strong>受注期間①：</strong>3月6日〜3月22日（日）23:59<br>
+          <strong>お届け予定：</strong>2026年4月28日以降順次<br>
+          <strong>後日店頭販売：</strong>予定あり（続報待ち）<br>
+          <a href="https://vvstore.jp/feature/detail/22229/" target="_blank" rel="noopener" style="color:var(--vv-blue);">→ オンラインストアで購入</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="product-card">
+      <div class="product-visual vtuber">🏬</div>
+      <div class="product-content">
+        <span class="news-badge vtuber" style="margin-bottom:10px;">ニッチすぎる</span>
+        <h3>静馬レイ POP風アクリルバッジ（3種）各¥1,500</h3>
+        <p>「ファンサが『特定』」「メガネ屋縛り」「凄いというよりこわい」という、ファンにはたまらないフレーズが並ぶPOP風アクリルバッジ。ヴィレヴァンのPOPをモチーフにしたデザインが、お店との親和性バツグン！</p>
+        <button class="toggle-btn" onclick="toggleDetail(this)">商品詳細を見る ▼</button>
+        <div class="product-detail">
+          <strong>種類：</strong>全3種<br>
+          <strong>価格：</strong>各¥1,500（税込）<br>
+          <strong>受注期間：</strong>3月15日（日）23:59まで<br>
+          <strong>その他：</strong>アクリルフィギュア・Tシャツ・トートバッグなども展開<br>
+          <a href="https://vvstore.jp/" target="_blank" rel="noopener" style="color:var(--vv-blue);">→ オンラインストアで購入</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ===== コラボ傾向チャート ===== -->
+  <div class="section-header">
+    <span class="section-tag">Data</span>
+    <h2 class="section-title">今週のコラボ傾向</h2>
+  </div>
+
+  <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+    <div class="chart-section">
+      <h3>コラボジャンル別 件数</h3>
+      <p>今週発表されたヴィレヴァンコラボの内訳</p>
+      <div class="chart-container">
+        <canvas id="collabChart"></canvas>
+      </div>
+    </div>
+    <div class="chart-section">
+      <h3>グッズ価格帯分布</h3>
+      <p>今週の新着グッズ価格帯（税込）</p>
+      <div class="chart-container">
+        <canvas id="priceChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== タイムライン ===== -->
+  <div class="section-header">
+    <span class="section-tag">Timeline</span>
+    <h2 class="section-title">今週のヴィレヴァン年表</h2>
+  </div>
+
+  <div class="timeline">
+
+    <div class="timeline-item">
+      <div class="timeline-date">2026年3月11日（水）</div>
+      <h4>🎨 『るび様』×ヴィレヴァン コラボ受注開始</h4>
+      <p>美麗描き下ろしイラストグッズが登場。佐々木寿人コラボも同日スタート。</p>
+    </div>
+    
+    <div class="timeline-item">
+      <div class="timeline-date">2026年3月11日（水）</div>
+      <h4>📺 ガリベンチャーV、放送終了を発表</h4>
+      <p>2019年から続くVTuberバラエティが5月で終了。公式Xで発表。</p>
+    </div>
+    
+    <div class="timeline-item">
+      <div class="timeline-date">2026年3月10日（火）</div>
+      <h4>🌸 長月あおい×ヴィレヴァン コラボ受注開始</h4>
+      <p>お誕生日に向けた限定グッズ。3月30日まで受付。</p>
+    </div>
+    
+    <div class="timeline-item">
+      <div class="timeline-date">2026年3月9日（月）</div>
+      <h4>🐸 ただのかえるたち×ヴィレヴァン 受注開始</h4>
+      <p>エプロン姿の3匹が可愛い限定グッズが登場。</p>
+    </div>
+    
+    <div class="timeline-item">
+      <div class="timeline-date">2026年3月6日（金）</div>
+      <h4>🎮 崩壊：スターレイル×ヴィレヴァン 受注開始</h4>
+      <p>うまい棒コラボを含む大型企画がスタート。</p>
+    </div>
+    
+  </div>
+      <h4>🐸 ただのかえるたち×ヴィレヴァン コラボグッズ受注開始</h4>
+      <p>エプロン姿の描き下ろしイラスト入りグッズが多数登場。3月22日まで受注受付中。</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-date">2026年3月8日（日）</div>
+      <h4>📺 エヴァ30周年記念短編アニメ、YouTube公開</h4>
+      <p>シン・エヴァ公開から5年目のメモリアルデーに、アスカ主役の短編アニメが公式公開。</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-date">2026年3月6日（金）</div>
+      <h4>🎮 崩壊：スターレイル×ヴィレヴァン コラボ受注開始</h4>
+      <p>うまい棒コラボを含む限定グッズが登場。EX風林火山コラボ第2弾も同日スタート。</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-date">2026年3月6日（金）</div>
+      <h4>🔍 小市民シリーズ×ヴィレヴァン 店頭販売スタート</h4>
+      <p>全国8店舗でアクリルキーホルダー・ステッカー・アクリルフィギュアが販売開始。</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-date">2026年3月5日（木）</div>
+      <h4>🏬 静馬レイ×ヴィレヴァン コラボグッズ受注開始</h4>
+      <p>イオンモール特化型VTuberの初グッズ。ニッチすぎるフレーズのPOP風バッジが話題に。</p>
+    </div>
+    <div class="timeline-item">
+      <div class="timeline-date">2026年2月28日（土）</div>
+      <h4>🏪 ヴィレヴァン本店、5月31日閉店を発表</h4>
+      <p>1986年開店の1号店が40年の歴史に幕。建物・設備の老朽化が理由。SNSで大きな反響。</p>
+    </div>
+  </div>
+
+  <!-- ===== サブカルフラッシュ ===== -->
+  <div class="section-header">
+    <span class="section-tag">Subcul Flash</span>
+    <h2 class="section-title">サブカルニュースフラッシュ</h2>
+  </div>
+
+  <div class="flash-grid">
+
+    <div class="flash-card">
+      <div class="flash-icon">📺</div>
+      <div class="flash-content">
+        <h3>「ガリベンチャーV」5月で放送終了へ…</h3>
+        <p>VTuberが多数出演する人気番組が約7年の歴史に幕。3月11日に公式Xで発表され、ファンからは惜しむ声が上がっています。</p>
+        <a class="source-link" href="https://kai-you.net/article/94862" target="_blank" rel="noopener" style="border-color:#aaa; color:#aaa;">詳細へ →</a>
+      </div>
+    </div>
+    
+    <div class="flash-card">
+      <div class="flash-icon">🎀</div>
+      <div class="flash-content">
+        <h3>サンリオキャラクター大賞 2026年も開催！</h3>
+        <p>毎年恒例のビッグイベントが今年も開催決定。3月11日からエントリーキャラが毎日発表されます。推しキャラを応援しよう！</p>
+        <a class="source-link" href="https://kai-you.net/article/94844" target="_blank" rel="noopener" style="border-color:#aaa; color:#aaa;">詳細へ →</a>
+      </div>
+    </div>
+    
+  </div>
+      <div class="flash-content">
+        <h3>エヴァ30周年記念短編アニメがサプライズ公開！</h3>
+        <p>アスカが漫才に挑戦！？という衝撃的な内容の短編アニメが、カラー公式YouTubeチャンネルで無料公開中。シン・エヴァ公開からちょうど5年のメモリアルデーに合わせた粋な演出。</p>
+        <a class="source-link" href="https://www.evangelion.jp/news/260307-2/" target="_blank" rel="noopener" style="border-color:#aaa; color:#aaa;">公式サイトへ →</a>
+      </div>
+    </div>
+    <div class="flash-card">
+      <div class="flash-icon">🎪</div>
+      <div class="flash-content">
+        <h3>AnimeJapan 2026、3月28〜29日に東京ビッグサイトで開催！</h3>
+        <p>史上最大規模での開催が決定。東映アニメーション・東宝アニメーションなど大手が大規模参戦予定。ガールズバンドクライのPOPUP SHOPも3月19日よりヴィレヴァンでスタート！</p>
+        <a class="source-link" href="https://vvstore.jp/feature/detail/22145" target="_blank" rel="noopener" style="border-color:#aaa; color:#aaa;">ガルクラグッズを見る →</a>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /main-container -->
+
+<!-- FOOTER -->
+<footer>
+  <p>今日のヴィレヴァンニュース！ | 2026年3月11日（水）版</p>
+  <p style="margin-top:6px;">情報源：<a href="https://www.village-v.co.jp/" target="_blank">ヴィレッジヴァンガード公式</a> / <a href="https://vvstore.jp/" target="_blank">VVオンラインストア</a> / <a href="https://kai-you.net/" target="_blank">KAI-YOU.net</a> / <a href="https://prtimes.jp/" target="_blank">PR TIMES</a></p>
+  <p style="margin-top:6px; color:#666;">本ページは情報提供を目的として作成されています。掲載情報は収集時点のものです。</p>
+</footer>
+
+<script>
+  // ===== フィルタータブ =====
+  const filterTabs = document.querySelectorAll('.filter-tab');
+  const newsCards = document.querySelectorAll('.news-card');
+
+  filterTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      filterTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      const filter = tab.dataset.filter;
+      newsCards.forEach(card => {
+        if (filter === 'all' || card.dataset.category === filter) {
+          card.style.display = '';
+          card.style.animation = 'fadeIn 0.3s ease';
+        } else {
+          card.style.display = 'none';
+        }
+      });
+    });
+  });
+
+  // ===== 商品詳細トグル =====
+  function toggleDetail(btn) {
+    const detail = btn.nextElementSibling;
+    detail.classList.toggle('open');
+    btn.classList.toggle('active');
+    btn.textContent = detail.classList.contains('open') ? '閉じる ▲' : '商品詳細を見る ▼';
+  }
+
+  // ===== コラボジャンル円グラフ =====
+  const collabCtx = document.getElementById('collabChart').getContext('2d');
+  new Chart(collabCtx, {
+    type: 'doughnut',
+    data: {
+      labels: ['アニメ', 'ゲーム', 'VTuber', 'キャラクター', 'eスポーツ'],
+      datasets: [{
+        data: [3, 2, 1, 2, 1],
+        backgroundColor: ['#E8002D', '#0066CC', '#FF69B4', '#00A550', '#FF6B00'],
+        borderWidth: 3,
+        borderColor: '#fff',
+        hoverOffset: 8
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: { font: { size: 11, weight: '700' }, padding: 12 }
+        },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => ` ${ctx.label}: ${ctx.parsed}件`
+          }
+        }
+      }
+    }
+  });
+
+  // ===== 価格帯棒グラフ =====
+  const priceCtx = document.getElementById('priceChart').getContext('2d');
+  new Chart(priceCtx, {
+    type: 'bar',
+    data: {
+      labels: ['〜¥999', '¥1,000〜¥1,999', '¥2,000〜¥3,999', '¥4,000〜¥5,999', '¥6,000〜'],
+      datasets: [{
+        label: '商品数',
+        data: [2, 5, 6, 3, 2],
+        backgroundColor: ['#FFE000', '#FF6B00', '#E8002D', '#0066CC', '#00A550'],
+        borderRadius: 6,
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => ` ${ctx.parsed.y}点`
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: { stepSize: 1, font: { size: 11 } },
+          grid: { color: '#f0f0f0' }
+        },
+        x: {
+          ticks: { font: { size: 10 } },
+          grid: { display: false }
+        }
+      }
+    }
+  });
+</script>
+
+</body>
+</html>
